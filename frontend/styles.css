@@ -1,0 +1,15 @@
+:root { --bg:#0b1220; --card:#152238; --text:#e7ecf4; --muted:#9fb0c7; --accent:#4d8cff; --danger:#ff5e6a; }
+* { box-sizing: border-box; font-family: Arial, sans-serif; }
+body { margin:0; background:linear-gradient(180deg,#0b1220,#0f1a2e); color:var(--text); }
+.container { width:min(980px,92vw); margin:2rem auto; }
+.card { background:var(--card); border-radius:12px; padding:1rem; margin-bottom:1rem; border:1px solid #243a5c; }
+input, select, textarea, button { width:100%; padding:.7rem; border-radius:8px; border:1px solid #35527f; background:#0f1a2e; color:var(--text); margin:.4rem 0; }
+button { background:var(--accent); border:0; cursor:pointer; font-weight:700; }
+button.secondary { background:#21395d; }
+.grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:1rem; }
+.nav { display:flex; gap:.5rem; flex-wrap:wrap; }
+a { color:#8db5ff; text-decoration:none; }
+.small { color:var(--muted); font-size:.9rem; }
+.badge { display:inline-block; padding:.2rem .5rem; border-radius:999px; background:#264a7d; margin:.15rem; }
+.error { color:var(--danger); }
+@media (max-width: 640px){ .container{margin:1rem auto;} }

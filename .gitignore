@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.env
+.replit
+.pytest_cache/
+backend/uploads/*
+!backend/uploads/.gitkeep
+recruiting.db
