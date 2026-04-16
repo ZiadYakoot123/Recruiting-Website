@@ -5,7 +5,7 @@ from ai_services.service import generate_quiz
 from auth.deps import get_current_user, require_role
 from backend.schemas import JobIn
 from database.db import get_db
-from database.models import Application, EmployerProfile, Job, Question, Role, Test, User
+from database.models import Application, EmployeeProfile, EmployerProfile, Job, Question, Role, Test, User
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
@@ -112,8 +112,6 @@ def delete_job(job_id: int, db: Session = Depends(get_db), user: User = Depends(
 
 @router.post("/{job_id}/apply")
 def apply(job_id: int, db: Session = Depends(get_db), user: User = Depends(require_role(Role.employee.value))):
-    from database.models import EmployeeProfile
-
     job = db.get(Job, job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")

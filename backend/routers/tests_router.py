@@ -16,8 +16,18 @@ def get_test_for_job(job_id: int, db: Session = Depends(get_db), user: User = De
     job = db.get(Job, job_id)
     if not job or not job.test:
         raise HTTPException(status_code=404, detail="Test not found")
+    profile = db.query(EmployeeProfile).filter(EmployeeProfile.user_id == user.id).first()
+    app = db.query(Application).filter(Application.job_id == job_id, Application.employee_profile_id == profile.id).first() if profile else None
+    if not app:
+        raise HTTPException(status_code=400, detail="Apply before starting test")
+    if app.test_submitted_at:
+        raise HTTPException(status_code=400, detail="Multiple attempts are not allowed")
+    if not app.test_started_at:
+        app.test_started_at = datetime.utcnow()
+        db.commit()
+
     questions = job.test.questions[:]
-    random.shuffle(questions)
+    random.Random(f"{user.id}:{job_id}").shuffle(questions)
     if not questions:
         raise HTTPException(status_code=404, detail="No questions found")
     return {
@@ -41,7 +51,9 @@ def submit_test(job_id: int, payload: SubmitTestIn, db: Session = Depends(get_db
         raise HTTPException(status_code=400, detail="Apply before submitting test")
     if app.test_submitted_at:
         raise HTTPException(status_code=400, detail="Multiple attempts are not allowed")
-    if (datetime.utcnow() - app.applied_at).total_seconds() > job.test.time_limit_seconds:
+    if not app.test_started_at:
+        raise HTTPException(status_code=400, detail="Start the test before submitting")
+    if (datetime.utcnow() - app.test_started_at).total_seconds() > job.test.time_limit_seconds:
         raise HTTPException(status_code=400, detail="Test time limit exceeded")
 
     question_map: dict[int, Question] = {q.id: q for q in job.test.questions}
@@ -58,8 +70,8 @@ def submit_test(job_id: int, payload: SubmitTestIn, db: Session = Depends(get_db
     total = max(len(question_map), 1)
     test_score = round((correct / total) * 100, 2)
 
-    required = set((job.required_skills or "").split(","))
-    current_skills = set((profile.skills or "").split(",")) if profile else set()
+    required = {s.strip() for s in (job.required_skills or "").split(",") if s.strip()}
+    current_skills = {s.strip() for s in (profile.skills or "").split(",") if s.strip()} if profile else set()
     cv_relevance = round((len(required & current_skills) / max(len(required), 1)) * 100, 2)
     final_score = round((cv_relevance * 0.4) + (test_score * 0.6), 2)
 

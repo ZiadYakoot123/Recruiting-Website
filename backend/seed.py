@@ -10,8 +10,9 @@ def seed() -> None:
             print("Seed skipped: data already exists")
             return
 
-        employer = User(name="Acme HR", email="hr@acme.com", password=get_password_hash("Password123"), role="employer")
-        employee = User(name="Jane Candidate", email="jane@example.com", password=get_password_hash("Password123"), role="employee")
+        strong_seed_password = "S3cure!RecruitSeed#2026"
+        employer = User(name="Acme HR", email="hr@acme.com", password=get_password_hash(strong_seed_password), role="employer")
+        employee = User(name="Jane Candidate", email="jane@example.com", password=get_password_hash(strong_seed_password), role="employee")
         db.add_all([employer, employee])
         db.flush()
 

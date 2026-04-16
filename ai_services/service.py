@@ -1,7 +1,9 @@
 import json
 import random
 import re
+from io import BytesIO
 from typing import Any
+from pypdf import PdfReader
 from backend.config import get_settings
 
 
@@ -12,7 +14,12 @@ def _normalize_skills(skills: list[str] | str) -> list[str]:
 
 
 def parse_cv_bytes(file_bytes: bytes) -> dict[str, Any]:
-    text = file_bytes.decode("utf-8", errors="ignore")
+    text = ""
+    try:
+        reader = PdfReader(BytesIO(file_bytes))
+        text = "\n".join((page.extract_text() or "") for page in reader.pages)
+    except Exception:
+        text = file_bytes.decode("utf-8", errors="ignore")
     words = re.findall(r"[A-Za-z+#.]{2,}", text)
     top_skills = sorted(set(w.lower() for w in words if len(w) < 20))[:20]
     return {"raw_text_excerpt": text[:1000], "skills": top_skills, "summary": "Auto-parsed CV summary"}

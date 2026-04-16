@@ -78,6 +78,7 @@ class Application(Base):
     employee_profile_id: Mapped[int] = mapped_column(ForeignKey("employee_profiles.id", ondelete="CASCADE"), index=True)
     job_id: Mapped[int] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"), index=True)
     applied_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    test_started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     test_submitted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     employee: Mapped["EmployeeProfile"] = relationship(back_populates="applications")

@@ -10,6 +10,8 @@ from database.models import EmployeeProfile, EmployerProfile, Job, Role, User
 
 router = APIRouter(prefix="/api/profiles", tags=["profiles"])
 UPLOAD_DIR = Path("backend/uploads")
+MAX_CV_SIZE_BYTES = 5 * 1024 * 1024
+MAX_CV_PARSED_SKILLS = 15
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 def _model_to_dict(model_obj):
@@ -61,7 +63,7 @@ async def upload_cv(file: UploadFile = File(...), db: Session = Depends(get_db),
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
 
     data = await file.read()
-    if len(data) > 5 * 1024 * 1024:
+    if len(data) > MAX_CV_SIZE_BYTES:
         raise HTTPException(status_code=400, detail="File too large (max 5MB)")
 
     parsed = parse_cv_bytes(data)
@@ -75,7 +77,7 @@ async def upload_cv(file: UploadFile = File(...), db: Session = Depends(get_db),
     profile.cv_filename = str(target)
     profile.cv_parsed = json.dumps(parsed)
     existing_skills = set(s.strip() for s in profile.skills.split(",") if s.strip())
-    for skill in parsed.get("skills", [])[:15]:
+    for skill in parsed.get("skills", [])[:MAX_CV_PARSED_SKILLS]:
         existing_skills.add(skill)
     profile.skills = ",".join(sorted(existing_skills))
     db.commit()

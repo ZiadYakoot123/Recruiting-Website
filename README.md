@@ -56,6 +56,7 @@ Production-ready recruitment web platform connecting employees and employers wit
 ## Deployment (VPS)
 
 - Use PostgreSQL and set `DATABASE_URL`
+- Add Alembic (or equivalent) for schema migrations in production
 - Run via `uvicorn` behind `nginx` (or systemd + reverse proxy)
-- Restrict CORS origins for production
+- Restrict CORS origins for production using `CORS_ORIGINS`
 - Rotate `SECRET_KEY` and keep `.env` private

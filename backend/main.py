@@ -7,15 +7,18 @@ from backend.routers.jobs_router import router as jobs_router
 from backend.routers.profiles_router import router as profiles_router
 from backend.routers.rankings_router import router as rankings_router
 from backend.routers.tests_router import router as tests_router
-from database.db import Base, engine
+from backend.config import get_settings
+from database.db import Base, engine, ensure_optional_columns
 
 Base.metadata.create_all(bind=engine)
+ensure_optional_columns()
+settings = get_settings()
 
 app = FastAPI(title="AI Recruitment Platform", version="1.0.0")
 app.add_middleware(RateLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
